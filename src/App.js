@@ -1,33 +1,32 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import {nanoid} from "nanoid";
-import NotesList from './components/NotesList';
+import { v4 as uuidv4 } from 'uuid';
+import { DragDropContext,Droppable,Draggable } from 'react-beautiful-dnd';
 import SearchBar from './components/SearchBar';
 import Header from './components/Header';
 import Buckets from './components/Buckets';
-import { DragDropContext } from 'react-beautiful-dnd';
 
 function App() {
   const [notes,setNotes] = useState([{
-    id: nanoid(),
+    id: uuidv4(),
     text: "My first note",
     date: "15/04/2021",
     group: "Unclassified"
   },
   {
-    id: nanoid(),
+    id: uuidv4(),
     text: "My second note",
     date: "15/04/2021",
     group: "Unclassified"
   },
   {
-    id: nanoid(),
+    id: uuidv4(),
     text: "My third note",
     date: "15/04/2021",
     group: "Unclassified"
   },
   {
-    id: nanoid(),
+    id: uuidv4(),
     text: "My fourth note",
     date: "21/05/2022",
     group: "Unclassified"
@@ -56,7 +55,7 @@ function App() {
   const createNote = (text,bucket) => {
     const date = new Date();
     const newNote = {
-      id: nanoid(),
+      id: uuidv4(),
       text: text,
       date: date.toLocaleDateString(),
       group: bucket
@@ -71,19 +70,19 @@ function App() {
   }
 
   return (
-    <DragDropContext>
       <div className={`${darkMode && 'dark-mode'}`}>
-        <div className="container">
-          <Header handleDarkMode={setDarkMode}/>
-          <SearchBar handleSearchNote={setSearchText}/>
-          <Buckets
-            notes={notes.filter((note) => note.text.toLowerCase().includes(searchText))} 
-            handleCreateNote={createNote}
-            handleDeleteNote={deleteNote}
-          />
-        </div>
+        <DragDropContext onDropEnd={result => console.log(result)}>
+          <div className="container">
+            <Header handleDarkMode={setDarkMode}/>
+            <SearchBar handleSearchNote={setSearchText}/>
+            <Buckets
+              notes={notes.filter((note) => note.text.toLowerCase().includes(searchText))} 
+              handleCreateNote={createNote}
+              handleDeleteNote={deleteNote}
+            />
+          </div>
+        </DragDropContext>
       </div>
-    </DragDropContext>
   );
 }
 
