@@ -1,8 +1,7 @@
 import Notes from "./Notes";
-import CreateNote from "./CreateNote";
 import { Draggable} from "react-beautiful-dnd";
 
-const NotesList = ({column,searchText,handleCreateNote,columnId,handleDeleteNote,handleEditNote,provided}) => {
+const UngroupedList = ({column,searchText,columnId,handleDeleteNote,handleEditNote,provided}) => {
     return (
         <div className="notes-list" {...provided.droppableProps} ref={provided.innerRef}>
             {column.items.map((item,index) => {
@@ -34,10 +33,9 @@ const NotesList = ({column,searchText,handleCreateNote,columnId,handleDeleteNote
                     </Draggable>
                 );
             })}
-            <CreateNote handleCreateNote={handleCreateNote} column = {column.name} columnId = {columnId}/>
             {provided.placeholder}
         </div>
     )
 };
 
-export default NotesList;
+export default UngroupedList;

@@ -13,7 +13,7 @@ code {
 }
 
 .container{
-  max-width: 960px;
+  max-width: 1200px;
   margin-right: auto;
   margin-left: auto;
   padding-right: 15px;
@@ -126,4 +126,30 @@ textarea:focus {
 
 .dark-mode h1 {
 	color: white;
+}
+
+.bucket-form{
+	background-color: lightgrey;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	white-space: pre-wrap;
+	border-radius: 10px;
+	padding: 1rem;
+	min-height: 20px
+}
+
+.bucket-container{
+	margin-right: auto;
+	margin-left: auto;
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+.options{
+	margin-top: 10px;
+	display: flex;
+	flex-direction: row;
+	margin-right: auto;
+	margin-left: auto;
 }

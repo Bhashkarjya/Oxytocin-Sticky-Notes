@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const CreateNote = ({handleCreateNote,bucket}) => {
+const CreateNote = ({handleCreateNote,column,columnId}) => {
 
     const [noteText,setNoteText] = useState('');
 
@@ -13,7 +13,7 @@ const CreateNote = ({handleCreateNote,bucket}) => {
 
     const handleSaveClick = () => {
         if(noteText.trim().length > 0)
-            handleCreateNote(noteText,bucket);
+            handleCreateNote(noteText,column,columnId);
         setNoteText('');
     };
 
@@ -25,7 +25,8 @@ const CreateNote = ({handleCreateNote,bucket}) => {
                 placeholder="Type to add a note...."
                 value = {noteText}
                 onChange = {handleChange}
-                ></textarea>
+                >
+            </textarea>
             <div className="note-footer">
                 <small>{characterLimit - noteText.length}</small>
                 <button className="save" onClick={handleSaveClick}>Save</button>

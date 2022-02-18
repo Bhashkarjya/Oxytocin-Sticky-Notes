@@ -1,9 +1,14 @@
 import { useState,useEffect } from "react";
 import NotesList from "./NotesList";
 import { v4 as uuidv4 } from 'uuid';
-import { DragDropContext,Droppable,Draggable } from "react-beautiful-dnd";
+import { DragDropContext,Droppable } from "react-beautiful-dnd";
+import SearchBar from "./SearchBar";
+import CreateBucket from "./CreateBucket";
+import BucketForm from "./BucketForm";
+import Options from "./Options";
+import UngroupedList from "./UngroupedList";
 
-const Buckets = ({notes,handleCreateNote,handleDeleteNote}) => {
+const Buckets = ({notes}) => {
     const buckets = {
         [uuidv4()]:{
             name:"Unclassified",
@@ -19,36 +24,79 @@ const Buckets = ({notes,handleCreateNote,handleDeleteNote}) => {
         }
     };
 
+    useEffect(() => {
+        const savedData = JSON.parse(
+            localStorage.getItem('sticky-notes-data')
+        )
+        if(savedData)
+            setColumns(savedData);
+    },[]);
+
     const [columns,setColumns] = useState(buckets);
+    const [searchText,setSearchText] = useState('');
+    const [createBucket,setCreateBucket] = useState(false);
+    const [group,setGroup] = useState(true);
 
     useEffect(() => {
         localStorage.setItem(
           'sticky-notes-data',
-          JSON.stringify(notes)
+          JSON.stringify(columns)
         );
       }, [columns]);
     
-
-    const createNote = (text,bucket) => {
+    
+    const createNote = (text,column,columnId) => {
         const date = new Date();
         const newNote = {
           id: uuidv4(),
           text: text,
           date: date.toLocaleDateString(),
-          group: bucket
+          group: column
+        };
+        const updatedColumn = columns[columnId];
+        const updatedItems = updatedColumn.items;
+        updatedItems.push(newNote);
+        setColumns({
+            ...columns,
+            [columnId]:{
+                name:updatedColumn.name,items: updatedItems
+            }
+        });
+      };
+    
+    const deleteNote = (id,columnId) => {
+        const updatedColumn = columns[columnId];
+        const updatedItems = updatedColumn.items.filter((item) => item.id !== id);
+        setColumns({
+            ...columns,
+            [columnId]:{
+                name: updatedColumn.name,
+                items: updatedItems
+            }
+        });
+    };
+
+    const editNote = (e,id,date,text,columnId) => {
+        e.preventDefault();
+        const updatedNote = {
+            id: id,
+            text: text,
+            date: date,
+            group: columns[columnId].name
         };
 
-        for(var i=0;i<columns.length;i++)
-        {
-            if(columns[i].name == bucket)
-            {
-                const newNodesList = [...columns[i].items,newNote];
+        const updatedColumn = columns[columnId];
+        const updatedItems = updatedColumn.items.filter((item) => item.id !== id);
+        updatedItems.push(updatedNote);
+        setColumns({
+            ...columns,
+            [columnId]:{
+                name: updatedColumn.name,
+                items: updatedItems
             }
-        }
-        const newNotesList = [...notes,newNote];
-        // setNotes(newNotesList);
-      };
-
+        });
+    }
+    
     const onDragEnd = (result,columns,setColumns) => {
         if(!result.destination)
             return;
@@ -88,8 +136,34 @@ const Buckets = ({notes,handleCreateNote,handleDeleteNote}) => {
         }
     };
 
+    const handleBucketSubmit = (bucket) => {
+        const newBucket = {
+            name: bucket,
+            items:[]
+        };
+        const newObject = {
+            key:[uuidv4()],
+            pair:newBucket
+        };
+        console.log("asdas");
+        const updatedBucketList = Object.assign(columns,newObject);
+        console.log(newObject);
+        // console.log(columns);
+        // setCreateBucket(false);
+    }
+
     return (
         <div >
+            <SearchBar handleSearchNote={setSearchText}/>
+            
+            {
+                createBucket ? (
+                    <BucketForm handleSubmit = {handleBucketSubmit}/>
+                ):
+                (<CreateBucket handleCreateBucket={setCreateBucket}/>)
+            }
+            <Options handleGrouping = {setGroup}/>
+            { group ? (
             <DragDropContext
                 onDragEnd={result => onDragEnd(result,columns,setColumns)}>
                 {Object.entries(columns).map(([columnId,column],index) => {
@@ -100,10 +174,12 @@ const Buckets = ({notes,handleCreateNote,handleDeleteNote}) => {
                                 {(provided,snapshot) => {
                                     return (
                                         <NotesList 
+                                                searchText = {searchText}
                                                 column = {column} 
                                                 handleCreateNote = {createNote} 
-                                                handleDeleteNote = {handleDeleteNote}
-                                                bucket = {column.name}
+                                                handleDeleteNote = {deleteNote}
+                                                handleEditNote = {editNote}
+                                                columnId = {columnId}
                                                 provided = {provided}
                                         />
                                     )
@@ -112,7 +188,32 @@ const Buckets = ({notes,handleCreateNote,handleDeleteNote}) => {
                         </div>
                     )
                 })}
-            </DragDropContext>
+            </DragDropContext>):(
+            <div>
+                {Object.entries(columns).map(([columnId,column],index) => {
+                    return (
+                        <div key={columnId}>
+                            <Droppable droppableId={columnId} key={columnId}>
+                                {(provided,snapshot) => {
+                                    return (
+                                        <UngroupedList
+                                                searchText = {searchText}
+                                                column = {column} 
+                                                handleCreateNote = {createNote} 
+                                                handleDeleteNote = {deleteNote}
+                                                handleEditNote = {editNote}
+                                                columnId = {columnId}
+                                                provided = {provided}
+                                        />
+                                    )
+                                }}
+                            </Droppable>  
+                        </div>
+                    )
+                })}
+            </div>
+            )
+            }
         </div>
     )
 }

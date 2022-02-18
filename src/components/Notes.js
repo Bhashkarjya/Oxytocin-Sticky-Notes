@@ -1,52 +1,12 @@
 import {MdDeleteForever} from "react-icons/md";
 import {AiFillEdit} from "react-icons/ai";
-import { useState,useEffect } from "react";
+import { useState} from "react";
 
-const Notes = ({id,text,date,handleDeleteNote}) => {
+const Notes = ({id,text,date,handleDeleteNote,handleEditNote,columnId}) => {
 
     const [edit,setEdit] = useState(false);
-    const [notesList,setNotes] = useState([]);
     const characterLimit = 140;
     const [editText,setEditText] = useState(text);
-
-    useEffect(() => {
-        const savedNotes = JSON.parse(
-          localStorage.getItem('sticky-notes-data')
-        );
-        setNotes(savedNotes);
-        if(savedNotes)
-          setNotes(savedNotes);
-      },[edit]);
-    
-    const handleEdit = (e,id,date) => {
-        e.preventDefault();
-        console.log("clicked");
-        console.log(notesList);
-        const updatedNote = {
-            id: id,
-            text: editText,
-            date: date
-        };
-        var updatedList = [];
-        for(var i=0;i<notesList.length;i++)
-        {
-            if(notesList[i].id === id)
-            {
-                updatedList.push(updatedNote);
-            }
-            else
-                updatedList.push(notesList[i]);
-        }
-        setNotes(
-            updatedList
-        );
-        localStorage.setItem(
-            'sticky-notes-data',
-            JSON.stringify(updatedList)
-          );
-        setEdit(false);
-        window.location.reload(false);
-    } ;
 
     return(
         <div className="notes">
@@ -61,7 +21,10 @@ const Notes = ({id,text,date,handleDeleteNote}) => {
                     ></textarea>
                 </div>
             ):
-            (<span>{text}</span>)}
+            (
+            <div>
+                <span>{text}</span>
+            </div>)}
 
             {!edit?(
                 <div className="note-footer">
@@ -78,7 +41,7 @@ const Notes = ({id,text,date,handleDeleteNote}) => {
                         <MdDeleteForever 
                             className="delete-icon" 
                             size="1.3em" 
-                            onClick={() => handleDeleteNote(id)}
+                            onClick={() => handleDeleteNote(id,columnId)}
                         />
                     </span>
                 </div>
@@ -86,7 +49,10 @@ const Notes = ({id,text,date,handleDeleteNote}) => {
             (
                 <div className="note-footer">
                     <small>{characterLimit - text.length}</small>
-                    <button className="save" onClick={(e) => handleEdit(e,id,date)}>Save</button>
+                    <button className="save" onClick={(e) => {
+                        handleEditNote(e,id,date,editText,columnId)
+                        setEdit(false);
+                    }}>Save</button>
                 </div>
             )}
             
